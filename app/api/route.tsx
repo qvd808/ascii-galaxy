@@ -1,10 +1,20 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+// app/api/starry-background/route.ts
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  // Extract parameters from the URL query string (like username, theme, etc.)
-  const { username, theme = 'light' } = req.query;
+import { NextApiRequest } from 'next';
+import { NextResponse } from 'next/server';
 
-  // Generate an SVG dynamically based on parameters
+interface StarProps {
+  size: number;
+  left: number;
+  top: number;
+  opacity: number;
+}
+
+// Named export for the GET method
+export function GET(req: NextApiRequest, res: NextResponse) {
+    const { username, theme = 'light' } = req.query;// Generate stars
+
+  // Combine all parts to form the full SVG content
   const svgContent = `
     <svg xmlns="http://www.w3.org/2000/svg" width="400" height="150">
       <rect width="100%" height="100%" fill="${theme === 'dark' ? '#333' : '#fff'}"/>
@@ -14,7 +24,11 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     </svg>
   `;
 
-  // Set headers to serve the response as an SVG file
-  res.setHeader('Content-Type', 'image/svg+xml');
-  res.status(200).send(svgContent);
+  // Return the SVG as a response
+  return new NextResponse(svgContent, {
+    headers: {
+      'Content-Type': 'image/svg+xml',
+      'Content-Disposition': 'inline; filename=starry-background.svg',
+    },
+  });
 }
