@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
       .replace(/'/g, '&apos;');
 
     // Apply shift for Edge on the last line
-    const dx = isEdge && index === asciiText.split('\n').length - 1 ? '1em' : '0';
+    const dx = isEdge && index === asciiText.split('\n').length - 1 ? '1.2em' : '0';
     return `<tspan x="50%" dx="${dx}" dy="${index === 0 ? 0 : '1.2em'}" text-anchor="middle" font-family="monospace" letter-spacing="0.3em">${escapedLine}</tspan>`;
   }).join('');
 
