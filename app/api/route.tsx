@@ -1,3 +1,5 @@
+import { NextResponse } from 'next/server';
+
 interface StarProps {
   size: number;
   left: number;
