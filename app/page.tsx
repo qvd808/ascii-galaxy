@@ -26,55 +26,44 @@ export default function Home() {
   }, []);
 
   return (
-    <div 
+    <svg 
+      width="100%" 
+      height="100vh" 
+      viewBox="0 0 100 100" 
+      xmlns="http://www.w3.org/2000/svg" 
       style={{
-        margin: 0,
-        height: '100vh',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        background: 'linear-gradient(45deg, #000033, #000066, #000099)',
+        background: 'linear-gradient(45deg, #000033, #000066, #000099)', 
         overflow: 'hidden',
         fontFamily: 'monospace',
         color: 'white',
         position: 'relative'
       }}
     >
-      {/* Stars container */}
-      <div 
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          pointerEvents: 'none'
-        }}
-      >
+      {/* Stars (represented by circles) */}
+      <g>
         {stars.map((star, index) => (
-          <div
+          <circle
             key={index}
-            style={{
-              position: 'absolute',
-              backgroundColor: 'white',
-              borderRadius: '50%',
-              width: `${star.size}px`,
-              height: `${star.size}px`,
-              left: `${star.left}%`,
-              top: `${star.top}%`,
-              opacity: star.opacity
-            }}
+            cx={`${star.left}%`}
+            cy={`${star.top}%`}
+            r={`${star.size / 2}`}  // Size of the star (circle radius)
+            fill="white"
+            opacity={star.opacity}
           />
         ))}
-      </div>
+      </g>
 
       {/* ASCII Text */}
-      <pre 
+      <text
+        x="50%"
+        y="50%"
+        textAnchor="middle"
+        alignmentBaseline="middle"
+        fontSize="5"
         style={{
-          fontSize: '20px',
-          textAlign: 'center',
           animation: 'float 2s ease-in-out infinite alternate',
-          textShadow: '0 0 10px rgba(255,255,255,0.5)'
+          textShadow: '0 0 10px rgba(255,255,255,0.5)',
+          fontFamily: 'monospace'
         }}
       >
         {` _____         _           _             _    
@@ -83,7 +72,7 @@ export default function Home() {
   | |  __/ (__| | | | \\__ \ || (_| | (__|   < 
   |_|\\___|\\___| |_| |_| |___/\\__\\__,_|\\___|_|\\_\\
         `}
-      </pre>
+      </text>
 
       {/* Global styles for float animation */}
       <style>{`
@@ -92,7 +81,6 @@ export default function Home() {
           100% { transform: translateY(-10px); }
         }
       `}</style>
-    </div>
+    </svg>
   );
-
 }
