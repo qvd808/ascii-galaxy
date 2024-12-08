@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import figlet from "figlet";
+import standard from "figlet/importable-fonts/Standard.js";
 
 interface StarProps {
   size: number;
@@ -21,6 +21,15 @@ export async function GET(req: NextRequest) {
   // Parse width and height from search params
   const width = parseInt(searchParams.get('width') || '400');
   const height = parseInt(searchParams.get('height') || '200');
+  const text = searchParams.get('text');
+
+	if (!text) {
+			NextResponse.json({
+			message: `Please provide a text value`
+		}, {
+				status: 500
+		})
+	}
 
   // Generate stars
   const stars: StarProps[] = Array.from({ length: 200 }, (_, index) => ({
@@ -30,18 +39,27 @@ export async function GET(req: NextRequest) {
     opacity: 0.5 + Math.sin(index * 0.2) * 0.5,
   }));
 
-  // Read ASCII text
-  let asciiText = '';
-  try {
-    const filePath = path.join(process.cwd(), 'data', 'test.txt');
-    asciiText = fs.readFileSync(filePath, 'utf8').trimEnd();
-  } catch (error) {
-    asciiText = 'ASCII Text Not Found';
-    console.error('Error reading ASCII text:', error);
-  }
+	  // Read ASCII text
+	figlet.parseFont("Standard", standard);
+	const asciiText = await figlet.text(
+	  text,
+	  {
+		font: "Standard",
+	  },
+	  function (err: string, data: string) {
+		if (err) {
+			NextResponse.json({
+			message: `Something wrong with genearing figlet: ${err}`
+		}, {
+							status: 500
+						})
+		}
+		return data
+	  }
+	);
 
   // Split ASCII text into lines
-  const asciiTextLines = asciiText.split('\n').map((line, index) => {
+  const asciiTextLines = asciiText.split('\n').map((line: string, index: number) => {
     const escapedLine = line
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
