@@ -1,9 +1,15 @@
-// Assuming the imported Standard is a font or an object
-import Standard from "figlet/importable-fonts/Standard";
+import Standard from 'figlet/importable-fonts/Standard';
+import OneRow from 'figlet/importable-fonts/1Row';
 
-// Create a namespace for fonts
-namespace fonts {
-  export const standard = Standard;
+type Fonts = {
+  [key: string]: string
 }
 
+const fonts: Fonts = {
+  "Standard": Standard,
+  "1Row": OneRow
+};
+
+
 export default fonts;
+

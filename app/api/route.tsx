@@ -26,10 +26,11 @@ export async function GET(req: NextRequest) {
   const width = parseInt(searchParams.get('width') || '400');
   const height = parseInt(searchParams.get('height') || '200');
   const text = searchParams.get('text') || 'Hello';
+  const font = searchParams.get('font') || "Standard";
 
   try {
 	
-	figlet.parseFont("Standard", fonts.standard);
+	figlet.parseFont("Standard", fonts[font]);
     // Use promisified version to get ASCII text
     const asciiText = await figletText(text) || '';
 
