@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from 'next/server';
 import figlet from "figlet";
 import standard from "figlet/importable-fonts/Standard.js";
+import { promisify } from 'util';
 
 interface StarProps {
   size: number;
@@ -8,6 +9,9 @@ interface StarProps {
   top: number;
   opacity: number;
 }
+
+// Promisify the figlet text method for easier async handling
+const figletText = promisify(figlet.text);
 
 // Named export for the GET method
 export async function GET(req: NextRequest) {
@@ -21,122 +25,110 @@ export async function GET(req: NextRequest) {
   // Parse width and height from search params
   const width = parseInt(searchParams.get('width') || '400');
   const height = parseInt(searchParams.get('height') || '200');
-  const text = searchParams.get('text');
+  const text = searchParams.get('text') || 'Hello';
 
-	if (!text) {
-			NextResponse.json({
-			message: `Please provide a text value`
-		}, {
-				status: 500
-		})
-	}
-
-  // Generate stars
-  const stars: StarProps[] = Array.from({ length: 200 }, (_, index) => ({
-    size: 1 + Math.sin(index * 0.1) * 1,
-    left: (index * 7) % 100,
-    top: (index * 13) % 100,
-    opacity: 0.5 + Math.sin(index * 0.2) * 0.5,
-  }));
-
-	  // Read ASCII text
+  try {
+	
 	figlet.parseFont("Standard", standard);
-	const asciiText = await figlet.text(
-	  text,
-	  {
-		font: "Standard",
-	  },
-	  function (err: string, data: string) {
-		if (err) {
-			NextResponse.json({
-			message: `Something wrong with genearing figlet: ${err}`
-		}, {
-							status: 500
-						})
-		}
-		return data
-	  }
-	);
 
-  // Split ASCII text into lines
-  const asciiTextLines = asciiText.split('\n').map((line: string, index: number) => {
-    const escapedLine = line
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&apos;');
+    // Use promisified version to get ASCII text
+    const asciiText = await figletText(text) || '';
 
-    // Apply shift for Edge on the last line
-    const dx = isEdge && index === asciiText.split('\n').length - 1 ? '1.2em' : '0';
-    return `<tspan x="50%" dx="${dx}" dy="${index === 0 ? 0 : '1.2em'}" text-anchor="middle" font-family="monospace" letter-spacing="0.3em">${escapedLine}</tspan>`;
-  }).join('');
+    // Split ASCII text into lines
+    const asciiTextLines = asciiText.split('\n').map((line: string, index: number) => {
+      const escapedLine = line
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;');
 
-  // SVG content
-  const svgContent = `
-<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
-  <defs>
-    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#000033"/>
-      <stop offset="50%" stop-color="#000066"/>
-      <stop offset="100%" stop-color="#000099"/>
-    </linearGradient>
-  </defs>
+      // Apply shift for Edge on the last line
+      const dx = isEdge && index === asciiText.split('\n').length - 1 ? '1.2em' : '0';
+      return `<tspan x="50%" dx="${dx}" dy="${index === 0 ? 0 : '1.2em'}" text-anchor="middle" font-family="monospace" letter-spacing="0.3em">${escapedLine}</tspan>`;
+    }).join('');
 
-  <rect width="100%" height="100%" fill="url(#bg-gradient)"/>
+    // Generate stars
+    const stars: StarProps[] = Array.from({ length: 200 }, (_, index) => ({
+      size: 1 + Math.sin(index * 0.1) * 1,
+      left: (index * 7) % 100,
+      top: (index * 13) % 100,
+      opacity: 0.5 + Math.sin(index * 0.2) * 0.5,
+    }));
 
-  <g class="stars">
-    ${stars.map((star) => `
-      <circle 
-        cx="${star.left}%"
-        cy="${star.top}%"
-        r="${star.size}"
-        fill="white"
-        fill-opacity="${star.opacity}"
-      />
-    `).join('')}
-  </g>
+    // SVG content
+    const svgContent = `
+  <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+    <defs>
+      <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#000033"/>
+        <stop offset="50%" stop-color="#000066"/>
+        <stop offset="100%" stop-color="#000099"/>
+      </linearGradient>
+    </defs>
 
-  <text
-    x="50%"
-    y="${isEdge? "10%": "0%"}"
-    text-anchor="middle"
-    dominant-baseline="middle"
-    font-family="Courier, monospace"
-    font-size="${width / 40}"
-    fill="white"
-    letter-spacing="0.2em"
-    style="text-shadow: 0 0 10px rgba(255,255,255,0.5); white-space: pre; font-weight: bold;"
-  >
-    ${asciiTextLines}
-  </text>
+    <rect width="100%" height="100%" fill="url(#bg-gradient)"/>
 
-  <style type="text/css">
-    <![CDATA[
-    @keyframes float {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(-10px); }
-    }
-    @keyframes starMove {
-      0% { transform: translate(0, 0); }
-      50% { transform: translate(5px, 5px); }
-      100% { transform: translate(-5px, -5px); }
-    }
-    text {
-      animation: float 2s ease-in-out infinite alternate;
-    }
-    .stars circle {
-      animation: starMove 5s ease-in-out infinite alternate;
-    }
-    ]]>
-  </style>
-</svg>`;
+    <g class="stars">
+      ${stars.map((star) => `
+        <circle 
+          cx="${star.left}%"
+          cy="${star.top}%"
+          r="${star.size}"
+          fill="white"
+          fill-opacity="${star.opacity}"
+        />
+      `).join('')}
+    </g>
 
-  // Return the SVG as a response
-  return new NextResponse(svgContent, {
-    headers: {
-      'Content-Type': 'image/svg+xml',
-      'Content-Disposition': 'inline; filename=tech-star-background.svg',
-    },
-  });
+    <text
+      x="50%"
+      y="${isEdge? "10%": "0%"}"
+      text-anchor="middle"
+      dominant-baseline="middle"
+      font-family="Courier, monospace"
+      font-size="${width / 40}"
+      fill="white"
+      letter-spacing="0.2em"
+      style="text-shadow: 0 0 10px rgba(255,255,255,0.5); white-space: pre; font-weight: bold;"
+    >
+      ${asciiTextLines}
+    </text>
+
+    <style type="text/css">
+      <![CDATA[
+      @keyframes float {
+        0% { transform: translateY(0); }
+        100% { transform: translateY(-10px); }
+      }
+      @keyframes starMove {
+        0% { transform: translate(0, 0); }
+        50% { transform: translate(5px, 5px); }
+        100% { transform: translate(-5px, -5px); }
+      }
+      text {
+        animation: float 2s ease-in-out infinite alternate;
+      }
+      .stars circle {
+        animation: starMove 5s ease-in-out infinite alternate;
+      }
+      ]]>
+    </style>
+  </svg>`;
+
+    // Return the SVG as a response
+    return new NextResponse(svgContent, {
+      headers: {
+        'Content-Type': 'image/svg+xml',
+        'Content-Disposition': 'inline; filename=tech-star-background.svg',
+      },
+    });
+  } catch (error) {
+    // Handle any errors
+    return NextResponse.json({
+      message: `Error generating ASCII text: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    }, {
+      status: 500
+    });
+  }
 }

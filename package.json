@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@types/figlet": "^1.7.0",
     "figlet": "^1.8.0",
     "next": "15.0.4",
     "react": "^19.0.0",
