@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from 'next/server';
 import figlet from "figlet";
-import standard from "figlet/importable-fonts/Standard.js";
 import { promisify } from 'util';
+import fonts from "./fonts";
 
 interface StarProps {
   size: number;
@@ -29,8 +29,7 @@ export async function GET(req: NextRequest) {
 
   try {
 	
-	figlet.parseFont("Standard", standard);
-
+	figlet.parseFont("Standard", fonts.standard);
     // Use promisified version to get ASCII text
     const asciiText = await figletText(text) || '';
 
