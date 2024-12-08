@@ -30,6 +30,7 @@ export async function GET(req: NextRequest) {
 
   try {
 	
+		console.log(fonts)
 	figlet.parseFont("Standard", fonts[font]);
     // Use promisified version to get ASCII text
     const asciiText = await figletText(text) || '';
