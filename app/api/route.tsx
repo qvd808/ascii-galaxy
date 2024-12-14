@@ -103,11 +103,11 @@ ${asciiText}
 		  }
 		  @keyframes starMove {
 			0% { transform: translate(0, 0); }
-			50% { transform: translate(5px, 5px); }
-			100% { transform: translate(-5px, -5px); }
+			50% { transform: translate(10px, 10px); }
+			100% { transform: translate(-10px, -10px); }
 		  }
 		  .stars circle {
-			animation: starMove 5s ease-in-out infinite alternate;
+			animation: starMove 7s ease-in-out infinite alternate;
 		  }
 		  ]]>
 		</style>
