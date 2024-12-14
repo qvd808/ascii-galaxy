@@ -10,29 +10,22 @@ interface StarProps {
   opacity: number;
 }
 
-// Promisify the figlet text method for easier async handling
-
 // Named export for the GET method
 export async function GET(req: NextRequest) {
-  // Extract User-Agent to detect Edge
-  const userAgent = req.headers.get('user-agent') || '';
-  const isEdge = userAgent.includes('Edg/');
-
   // Extract search params instead of using json()
   const { searchParams } = new URL(req.url);
 
-  // Parse width and height from search params
+  // Parse width, height, text, font, and fontSize from search params
   const width = parseInt(searchParams.get('width') || '400');
   const height = parseInt(searchParams.get('height') || '200');
   const text = searchParams.get('text') || '';
   const font = searchParams.get('font') || "Standard";
   const fontSize = parseInt(searchParams.get('fontSize') || "20");
-
+  const textColor = searchParams.get('textColor') || "#ffffff";
   try {
-	
 	const fontPath = path.resolve(process.cwd(), `public/fonts/${font}.flf`);
 	
-	// Check if file exists
+	// Check if the font file exists
 	if (!fs.existsSync(fontPath)) {
 	  return NextResponse.json({
 		message: `Font file not found at ${fontPath}`,
@@ -41,26 +34,18 @@ export async function GET(req: NextRequest) {
 	}
 
 	// Read font file contents
-    const fontContents = fs.readFileSync(fontPath, 'utf8');
+	const fontContents = fs.readFileSync(fontPath, 'utf8');
 
-    // Register the font manually
-    figlet.parseFont(font, fontContents);
+	// Register the font manually
+	figlet.parseFont(font, fontContents);
 
-	const asciiText = figlet.textSync(text);
-
-	// Split ASCII text into lines
-	const asciiTextLines = asciiText.split('\n').map((line: string, index: number) => {
-	  const escapedLine = line
-		.replace(/&/g, '&amp;')
-		.replace(/</g, '&lt;')
-		.replace(/>/g, '&gt;')
-		.replace(/"/g, '&quot;')
-		.replace(/'/g, '&apos;');
-
-	  // Apply shift for Edge on the last line
-	  const dx = isEdge && index === asciiText.split('\n').length - 1 ? '1.2em' : '0';
-	  return `<tspan x="50%" dx="${dx}" dy="${index === 0 ? 0 : '1.2em'}" text-anchor="middle" font-family="monospace" letter-spacing="0.3em">${escapedLine}</tspan>`;
-	}).join('');
+	// Generate ASCII text
+	const asciiText = figlet.textSync(text)
+	  .replace(/&/g, '&amp;')
+	  .replace(/</g, '&lt;')
+	  .replace(/>/g, '&gt;')
+	  .replace(/"/g, '&quot;')
+	  .replace(/'/g, '&apos;');
 
 	// Generate stars
 	const stars: StarProps[] = Array.from({ length: 200 }, (_, index) => ({
@@ -70,65 +55,64 @@ export async function GET(req: NextRequest) {
 	  opacity: 0.5 + Math.sin(index * 0.2) * 0.5,
 	}));
 
-	// SVG content
+	// Create SVG content
 	const svgContent = `
-  <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
-	<defs>
-	  <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-		<stop offset="0%" stop-color="#000033"/>
-		<stop offset="50%" stop-color="#000066"/>
-		<stop offset="100%" stop-color="#000099"/>
-	  </linearGradient>
-	</defs>
+	  <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}">
+		<defs>
+		  <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+			<stop offset="0%" stop-color="#000033"/>
+			<stop offset="50%" stop-color="#000066"/>
+			<stop offset="100%" stop-color="#000099"/>
+		  </linearGradient>
+		</defs>
 
-	<rect width="100%" height="100%" fill="url(#bg-gradient)"/>
+		<rect width="100%" height="100%" fill="url(#bg-gradient)"/>
+		<g class="stars">
+		  ${stars.map((star) => `
+			<circle 
+			  cx="${star.left}%"
+			  cy="${star.top}%"
+			  r="${star.size}"
+			  fill="white"
+			  fill-opacity="${star.opacity}"
+			/>
+		  `).join('')}
+		</g>
 
-	<g class="stars">
-	  ${stars.map((star) => `
-		<circle 
-		  cx="${star.left}%"
-		  cy="${star.top}%"
-		  r="${star.size}"
-		  fill="white"
-		  fill-opacity="${star.opacity}"
-		/>
-	  `).join('')}
-	</g>
+		<foreignObject width="100%" height="100%">
+		  <div 
+			xmlns="http://www.w3.org/1999/xhtml"
+			style="display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 100%;
+			text-align: center;
+			color: ${textColor};
+			font-weight: bold;">
+			<pre style="font-size: ${fontSize}px; white-space: pre-wrap;">
+${asciiText}
+			</pre>
+		  </div>
+		</foreignObject>
 
-	<text
-	  x="50%"
-	  y="${isEdge? "10%": "0%"}"
-	  text-anchor="middle"
-	  dominant-baseline="middle"
-	  font-family="Courier, monospace"
-	  font-size="${fontSize}"
-	  fill="white"
-	  letter-spacing="0.2em"
-	  style="text-shadow: 0 0 10px rgba(255,255,255,0.5); white-space: pre; font-weight: bold;"
-	>
-	  ${asciiTextLines}
-	</text>
-
-	<style type="text/css">
-	  <![CDATA[
-	  @keyframes float {
-		0% { transform: translateY(0); }
-		100% { transform: translateY(-10px); }
-	  }
-	  @keyframes starMove {
-		0% { transform: translate(0, 0); }
-		50% { transform: translate(5px, 5px); }
-		100% { transform: translate(-5px, -5px); }
-	  }
-	  text {
-		animation: float 2s ease-in-out infinite alternate;
-	  }
-	  .stars circle {
-		animation: starMove 5s ease-in-out infinite alternate;
-	  }
-	  ]]>
-	</style>
-  </svg>`;
+		<style type="text/css">
+		  <![CDATA[
+		  @keyframes float {
+			0% { transform: translateY(0); }
+			100% { transform: translateY(-10px); }
+		  }
+		  @keyframes starMove {
+			0% { transform: translate(0, 0); }
+			50% { transform: translate(5px, 5px); }
+			100% { transform: translate(-5px, -5px); }
+		  }
+		  .stars circle {
+			animation: starMove 5s ease-in-out infinite alternate;
+		  }
+		  ]]>
+		</style>
+	  </svg>
+	`;
 
 	// Return the SVG as a response
 	return new NextResponse(svgContent, {
@@ -137,8 +121,9 @@ export async function GET(req: NextRequest) {
 		'Content-Disposition': 'inline; filename=tech-star-background.svg',
 	  },
 	});
+
   } catch (error) {
-	// Handle any errors
+	// Handle any errors gracefully
 	return NextResponse.json({
 	  message: `Error generating ASCII text: ${error instanceof Error ? error.message : 'Unknown error'}`,
 	}, {
