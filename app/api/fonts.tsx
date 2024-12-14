@@ -1,20 +1,13 @@
-import fs from 'fs';
-import path from 'path';
+import Standard from 'figlet/importable-fonts/Standard';
+import OneRow from 'figlet/importable-fonts/1Row';
 
 type Fonts = {
   [key: string]: string;
 };
 
-const fonts: Fonts = {};
-
-const directory = path.join(__dirname, 'node_modules/figlet/importable-fonts');
-
-// Ensure you use dynamic imports properly if using Webpack
-fs.readdirSync(directory).forEach((fileName) => {
-  if (fileName.endsWith('.js')) {
-    const fontName = fileName.replace('.js', '');
-    fonts[fontName] = require(path.join(directory, fileName));
-  }
-});
+const fonts: Fonts = {
+	"Standard": Standard,
+	"OneRow": OneRow,
+};
 
 export default fonts;
