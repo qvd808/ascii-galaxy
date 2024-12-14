@@ -26,6 +26,7 @@ export async function GET(req: NextRequest) {
   const height = parseInt(searchParams.get('height') || '200');
   const text = searchParams.get('text') || '';
   const font = searchParams.get('font') || "Standard";
+  const fontSize = parseInt(searchParams.get('fontSize') || "20");
 
   try {
 	
@@ -100,7 +101,7 @@ export async function GET(req: NextRequest) {
 	  text-anchor="middle"
 	  dominant-baseline="middle"
 	  font-family="Courier, monospace"
-	  font-size="${width / 40}"
+	  font-size="${fontSize}"
 	  fill="white"
 	  letter-spacing="0.2em"
 	  style="text-shadow: 0 0 10px rgba(255,255,255,0.5); white-space: pre; font-weight: bold;"
