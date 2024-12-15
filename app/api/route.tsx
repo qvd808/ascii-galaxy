@@ -2,6 +2,7 @@ import { NextResponse, NextRequest } from 'next/server';
 import figlet from "figlet";
 import fs from "fs";
 import path from 'path';
+import background from './background';
 
 interface StarProps {
   size: number;
@@ -22,6 +23,14 @@ export async function GET(req: NextRequest) {
   const font = searchParams.get('font') || "Standard";
   const fontSize = parseInt(searchParams.get('fontSize') || "20");
   const textColor = searchParams.get('textColor') || "#ffffff";
+  const configs = [
+		{offset: "0%", color: "#000033"},
+		{offset: "50%", color: "#000066"},
+		{offset: "100%", color: "#000099"}
+	];
+  const backgroundTest = background(0, 50, 100, 50, configs);
+
+
   try {
 	const fontPath = path.resolve(process.cwd(), `public/fonts/${font}.flf`);
 	
@@ -58,26 +67,8 @@ export async function GET(req: NextRequest) {
 	// Create SVG content
 	const svgContent = `
 	  <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}">
-		<defs>
-		  <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-			<stop offset="0%" stop-color="#000033"/>
-			<stop offset="50%" stop-color="#000066"/>
-			<stop offset="100%" stop-color="#000099"/>
-		  </linearGradient>
-		</defs>
 
-		<rect width="100%" height="100%" fill="url(#bg-gradient)"/>
-		<g class="stars">
-		  ${stars.map((star) => `
-			<circle 
-			  cx="${star.left}%"
-			  cy="${star.top}%"
-			  r="${star.size}"
-			  fill="white"
-			  fill-opacity="${star.opacity}"
-			/>
-		  `).join('')}
-		</g>
+		${backgroundTest}
 
 		<foreignObject width="100%" height="100%">
 		  <div 
@@ -94,6 +85,18 @@ ${asciiText}
 			</pre>
 		  </div>
 		</foreignObject>
+
+		<g class="stars">
+		  ${stars.map((star) => `
+			<circle 
+			  cx="${star.left}%"
+			  cy="${star.top}%"
+			  r="${star.size}"
+			  fill="white"
+			  fill-opacity="${star.opacity}"
+			/>
+		  `).join('')}
+		</g>
 
 		<style type="text/css">
 		  <![CDATA[
