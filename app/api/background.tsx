@@ -4,15 +4,19 @@ type Stop = {
 };
 
 function background(
-	x1: number,
-	y1: number,
-	x2: number,
-	y2: number,
-	stop_offset: Stop[]) {
-
-  const stops = stop_offset.map(stop => `
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  stop_offset: Stop[]
+) {
+  const stops = stop_offset
+    .map(
+      (stop) => `
     <stop offset="${stop.offset}" stop-color="${stop.color}"/>
-  `).join('');
+  `
+    )
+    .join('');
 
   return `
 <defs>
