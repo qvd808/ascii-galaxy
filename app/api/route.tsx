@@ -32,7 +32,9 @@ export async function GET(req: NextRequest) {
 
 
   try {
+
 	const fontPath = path.resolve(process.cwd(), `public/fonts/${font}.flf`);
+	console.log(fontPath)
 	
 	// Check if the font file exists
 	if (!fs.existsSync(fontPath)) {
