@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server';
-import figlet from "figlet";
-import fs from "fs";
+import figlet from 'figlet';
+import fs from 'fs';
 import path from 'path';
 import background from './background';
 
@@ -17,57 +17,55 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
 
   // Parse width, height, text, font, and fontSize from search params
-  const width = parseInt(searchParams.get('width') || '400');
+  const width = parseInt(searchParams.get('width') || '800');
   const height = parseInt(searchParams.get('height') || '200');
   const text = searchParams.get('text') || '';
-  const font = searchParams.get('font') || "Standard";
-  const fontSize = parseInt(searchParams.get('fontSize') || "20");
-  const textColor = searchParams.get('textColor') || "#ffffff";
+  const font = searchParams.get('font') || 'Standard';
+  const fontSize = parseInt(searchParams.get('fontSize') || '20');
+  const textColor = searchParams.get('textColor') || '#ffffff';
   const configs = [
-		{offset: "0%", color: "#000033"},
-		{offset: "50%", color: "#000066"},
-		{offset: "100%", color: "#000099"}
-	];
+    { offset: '0%', color: '#000033' },
+    { offset: '50%', color: '#000066' },
+    { offset: '100%', color: '#000099' },
+  ];
   const backgroundTest = background(0, 50, 100, 50, configs);
 
-
   try {
+    const fontPath = path.resolve(process.cwd(), `public/fonts/${font}.flf`);
 
-	const fontPath = path.resolve(process.cwd(), `public/fonts/${font}.flf`);
-	console.log(fontPath)
-	
-	// Check if the font file exists
-	if (!fs.existsSync(fontPath)) {
-	  return NextResponse.json({
-		message: `Font file not found at ${fontPath}`,
-		status: 404
-	  });
-	}
+    // Check if the font file exists
+    if (!fs.existsSync(fontPath)) {
+      return NextResponse.json({
+        message: `Font file not found at ${fontPath}`,
+        status: 404,
+      });
+    }
 
-	// Read font file contents
-	const fontContents = fs.readFileSync(fontPath, 'utf8');
+    // Read font file contents
+    const fontContents = fs.readFileSync(fontPath, 'utf8');
 
-	// Register the font manually
-	figlet.parseFont(font, fontContents);
+    // Register the font manually
+    figlet.parseFont(font, fontContents);
 
-	// Generate ASCII text
-	const asciiText = figlet.textSync(text)
-	  .replace(/&/g, '&amp;')
-	  .replace(/</g, '&lt;')
-	  .replace(/>/g, '&gt;')
-	  .replace(/"/g, '&quot;')
-	  .replace(/'/g, '&apos;');
+    // Generate ASCII text
+    const asciiText = figlet
+      .textSync(text)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&apos;');
 
-	// Generate stars
-	const stars: StarProps[] = Array.from({ length: 200 }, (_, index) => ({
-	  size: 1 + Math.sin(index * 0.1) * 1,
-	  left: (index * 7) % 100,
-	  top: (index * 13) % 100,
-	  opacity: 0.5 + Math.sin(index * 0.2) * 0.5,
-	}));
+    // Generate stars
+    const stars: StarProps[] = Array.from({ length: 200 }, (_, index) => ({
+      size: 1 + Math.sin(index * 0.1) * 1,
+      left: (index * 7) % 100,
+      top: (index * 13) % 100,
+      opacity: 0.5 + Math.sin(index * 0.2) * 0.5,
+    }));
 
-	// Create SVG content
-	const svgContent = `
+    // Create SVG content
+    const svgContent = `
 	  <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}">
 
 		${backgroundTest}
@@ -89,7 +87,9 @@ ${asciiText}
 		</foreignObject>
 
 		<g class="stars">
-		  ${stars.map((star) => `
+		  ${stars
+        .map(
+          (star) => `
 			<circle 
 			  cx="${star.left}%"
 			  cy="${star.top}%"
@@ -97,7 +97,9 @@ ${asciiText}
 			  fill="white"
 			  fill-opacity="${star.opacity}"
 			/>
-		  `).join('')}
+		  `
+        )
+        .join('')}
 		</g>
 
 		<style type="text/css">
@@ -119,20 +121,22 @@ ${asciiText}
 	  </svg>
 	`;
 
-	// Return the SVG as a response
-	return new NextResponse(svgContent, {
-	  headers: {
-		'Content-Type': 'image/svg+xml',
-		'Content-Disposition': 'inline; filename=tech-star-background.svg',
-	  },
-	});
-
+    // Return the SVG as a response
+    return new NextResponse(svgContent, {
+      headers: {
+        'Content-Type': 'image/svg+xml',
+        'Content-Disposition': 'inline; filename=tech-star-background.svg',
+      },
+    });
   } catch (error) {
-	// Handle any errors gracefully
-	return NextResponse.json({
-	  message: `Error generating ASCII text: ${error instanceof Error ? error.message : 'Unknown error'}`,
-	}, {
-	  status: 500
-	});
+    // Handle any errors gracefully
+    return NextResponse.json(
+      {
+        message: `Error generating ASCII text: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      },
+      {
+        status: 500,
+      }
+    );
   }
 }
