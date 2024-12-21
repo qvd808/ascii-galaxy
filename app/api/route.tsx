@@ -48,8 +48,9 @@ export async function GET(req: NextRequest) {
 		figlet.parseFont(font, fontContents);
 
 		// Generate ASCII text
+		// Validate the font is of type `Fonts`
 		const asciiText = figlet
-			.textSync(text)
+			.textSync(text, (font || "Standard") as figlet.Fonts)
 			.replace(/&/g, '&amp;')
 			.replace(/</g, '&lt;')
 			.replace(/>/g, '&gt;')
