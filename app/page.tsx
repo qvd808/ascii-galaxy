@@ -13,11 +13,7 @@ import { Spinner } from '@nextui-org/spinner';
 import { Card, CardHeader, CardBody } from '@nextui-org/card';
 import { Code } from '@nextui-org/code';
 import Image from 'next/image';
-// import fontArray from "constants"
-
-const fontArray: string[] = [
-	"Tengwar", "Knob", "JS Bracket Letters", "Doom", "Banner3", "Madrid", "Pagga", "Shadow", "Runic",
-]
+import { fontArray } from './Constant';
 
 export default function Home() {
 	const [isLoading, setIsLoading] = useState(false);
@@ -157,12 +153,12 @@ export default function Home() {
 								disallowEmptySelection
 								selectedKeys={fontOptions}
 								selectionMode="single"
-								className="w-[25vw] dark:text-white dark:bg-[#1F2937]"
+								className="w-[25vw] dark:text-white dark:bg-[#1F2937] max-h-[300px] overflow-y-auto"  // Add scroll here
 								onSelectionChange={(keys) => {
-									setFontOptions(new Set([keys.currentKey || "Standard"]))
+									setFontOptions(new Set([keys.currentKey || "Standard"]));
 								}}
 							>
-								{fontArray.map((font) => (
+								{(fontArray as string[]).map((font: string) => (
 									<DropdownItem key={font}>{font}</DropdownItem>
 								))}
 							</DropdownMenu>

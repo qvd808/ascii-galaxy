@@ -36,4 +36,4 @@ const fontArray: string[] = [
 	"Thin", "Cybermedium", "LCD", "Arrows", "DWhistled", "USA Flag", "Trek", "Runyc", "Peaks",
 	"AMC 3 Liv1", "Cybersmall", "Nancyj", "Script", "Wet Letter",
 ]
-export default fontArray
+export { fontArray };
