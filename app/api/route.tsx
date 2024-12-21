@@ -78,7 +78,7 @@ export async function GET(req: NextRequest) {
 			align-items: center;
 			height: 100%;
 			text-align: center;
-			color: ${textColor};
+			color: #${textColor};
 			font-weight: bold;">
 			<pre style="font-size: ${fontSize}px; white-space: pre-wrap;">
 ${asciiText}

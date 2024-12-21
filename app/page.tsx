@@ -204,7 +204,7 @@ export default function Home() {
 									size="lg"
 									radius="sm"
 								>
-									{`![Title](https://ascii-galaxy.vercel.app/width=${width}&height=${height}&text=${encodeURIComponent(
+									{`![Title](https://ascii-galaxy.vercel.app/api?width=${width}&height=${height}&text=${encodeURIComponent(
 										text
 									)}&font=${selectedValue}&fontSize=${fontSize}&textColor=${textColor})`}
 								</Code>
