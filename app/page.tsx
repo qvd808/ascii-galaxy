@@ -13,6 +13,11 @@ import { Spinner } from '@nextui-org/spinner';
 import { Card, CardHeader, CardBody } from '@nextui-org/card';
 import { Code } from '@nextui-org/code';
 import Image from 'next/image';
+// import fontArray from "constants"
+
+const fontArray: string[] = [
+	"Tengwar", "Knob", "JS Bracket Letters", "Doom", "Banner3", "Madrid", "Pagga", "Shadow", "Runic",
+]
 
 export default function Home() {
 	const [isLoading, setIsLoading] = useState(false);
@@ -23,7 +28,7 @@ export default function Home() {
 	const [imageHeight, setImageHeight] = useState(200);
 	const [text, setText] = useState('');
 	const [imageUrl, setImageUrl] = useState<string | null>(null);
-	const [fontOptions, setFontOptions] = useState(new Set<string>(['Standard']));
+	const [fontOptions, setFontOptions] = useState(new Set(['Standard']));
 	const [textColor, setTextColor] = useState('FFFFFF');
 
 	const selectedValue = useMemo(
@@ -140,12 +145,12 @@ export default function Home() {
 							className="text-black dark:text-white"
 						/>
 						<Dropdown className="flex w-full dark:bg-[#1F2937] border">
-							<DropdownTrigger className="">
+							<DropdownTrigger>
 								<Button
 									className="w-full dark:text-white dark:bg-[#1F2937] dark:border-[#374151]"
 									variant="bordered"
 								>
-									{selectedValue}
+									{fontOptions}
 								</Button>
 							</DropdownTrigger>
 							<DropdownMenu
@@ -153,13 +158,13 @@ export default function Home() {
 								selectedKeys={fontOptions}
 								selectionMode="single"
 								className="w-[25vw] dark:text-white dark:bg-[#1F2937]"
-								onSelectionChange={(keys) =>
-									setFontOptions(new Set(Array.from(keys).map(String)))
-								}
+								onSelectionChange={(keys) => {
+									setFontOptions(new Set([keys.currentKey || "Standard"]))
+								}}
 							>
-								<DropdownItem className="" key="Standard">
-									Standard
-								</DropdownItem>
+								{fontArray.map((font) => (
+									<DropdownItem key={font}>{font}</DropdownItem>
+								))}
 							</DropdownMenu>
 						</Dropdown>
 						<Button
