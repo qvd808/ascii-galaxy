@@ -15,9 +15,9 @@
 ASCII Galaxy is a dynamic README title generator that transforms your GitHub profile by adding a cool, animated ASCII art title. Instead of static text, you can now have an eye-catching, animated ASCII art header that brings more personality to your project's README.
 
 ### Before
-![Before](./assets/Before.png) 
+![Before](./assets/Before.png)
 ### After
-![After](./assets/After.png) |
+![After](./assets/After.png)
 
 ## Usage
 
