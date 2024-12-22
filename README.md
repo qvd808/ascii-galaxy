@@ -22,8 +22,7 @@ ASCII Galaxy is a dynamic README title generator that transforms your GitHub pro
 ## Usage
 
 ### Basic Usage
-You can visit ![this link](https://ascii-galaxy.vercel.app) for demo
-Add the following markdown to your README:
+You can visit ![this link](https://ascii-galaxy.vercel.app) for demo or add the following markdown to your README:
 
 ```markdown
 [![Title](https://ascii-galaxy.vercel.app/api?width=800&height=150)](https://ascii-galaxy.vercel.app/)
