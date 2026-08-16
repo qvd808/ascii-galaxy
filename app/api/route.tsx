@@ -127,6 +127,7 @@ ${asciiText}
       headers: {
         'Content-Type': 'image/svg+xml',
         'Content-Disposition': 'inline; filename=tech-star-background.svg',
+        'Cache-Control': 'public, max-age=86400, s-maxage=86400',
       },
     });
   } catch (error) {
