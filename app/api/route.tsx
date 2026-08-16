@@ -204,13 +204,8 @@ export async function GET(req: NextRequest) {
         'Content-Disposition': 'inline; filename=tech-star-background.svg',
 
         // 30-minute cache.
-        'Cache-Control': 'public, max-age=1800, s-maxage=1800',
-
-        'CDN-Cache-Control': 'public, max-age=1800',
-
-        // IMPORTANT:
-        // Vercel uses this request header as part of the CDN cache key.
-        Vary: 'Cookie',
+        'Cache-Control': 'public, max-age=0, s-maxage=0',
+        'CDN-Cache-Control': 'public, max-age=0',
       },
     });
   } catch (error) {
