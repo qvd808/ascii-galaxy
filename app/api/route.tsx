@@ -11,6 +11,15 @@ interface StarProps {
   opacity: number;
 }
 
+function escapeXml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
 
@@ -21,9 +30,17 @@ export async function GET(req: NextRequest) {
   const fontSize = parseInt(searchParams.get('fontSize') || '20');
   const textColor = searchParams.get('textColor') || '#ffffff';
 
-  // Experimental token mode.
+  // Experimental modes.
   const token = searchParams.get('token') === 'true';
+  const debug = searchParams.get('debug') === 'true';
+
   const timestamp = token ? new Date().toISOString() : '';
+
+  // Read request metadata.
+  const cookie = req.headers.get('cookie') || 'NO_COOKIE';
+  const userAgent = req.headers.get('user-agent') || 'NO_USER_AGENT';
+  const referer = req.headers.get('referer') || 'NO_REFERER';
+  const accept = req.headers.get('accept') || 'NO_ACCEPT';
 
   const configs = [
     { offset: '0%', color: '#000033' },
@@ -64,6 +81,51 @@ export async function GET(req: NextRequest) {
       top: (index * 13) % 100,
       opacity: 0.5 + Math.sin(index * 0.2) * 0.5,
     }));
+
+    let debugSvg = '';
+
+    if (debug) {
+      debugSvg = `
+        <g font-family="monospace" font-size="9" fill="#ffff00">
+          <text x="10" y="20">
+            COOKIE: ${escapeXml(cookie)}
+          </text>
+
+          <text x="10" y="35">
+            UA: ${escapeXml(userAgent)}
+          </text>
+
+          <text x="10" y="50">
+            REFERER: ${escapeXml(referer)}
+          </text>
+
+          <text x="10" y="65">
+            ACCEPT: ${escapeXml(accept)}
+          </text>
+
+          ${
+            token
+              ? `
+                <text x="10" y="80">
+                  TIME: ${escapeXml(timestamp)}
+                </text>
+              `
+              : ''
+          }
+        </g>
+      `;
+    } else if (token) {
+      debugSvg = `
+        <text
+          x="10"
+          y="20"
+          fill="#ffffff"
+          font-size="12"
+          font-family="monospace"
+          opacity="0.6"
+        >${escapeXml(timestamp)}</text>
+      `;
+    }
 
     const svgContent = `
 <svg
@@ -112,20 +174,7 @@ export async function GET(req: NextRequest) {
       .join('')}
   </g>
 
-  ${
-    token
-      ? `
-    <text
-      x="10"
-      y="20"
-      fill="#ffffff"
-      font-size="12"
-      font-family="monospace"
-      opacity="0.6"
-    >${timestamp}</text>
-  `
-      : ''
-  }
+  ${debugSvg}
 
   <style type="text/css">
     <![CDATA[
@@ -153,7 +202,7 @@ export async function GET(req: NextRequest) {
         'Content-Type': 'image/svg+xml',
         'Content-Disposition': 'inline; filename=tech-star-background.svg',
 
-        // Keep the response cacheable for the experiment.
+        // Deliberately cacheable.
         'Cache-Control': 'public, max-age=1800, s-maxage=1800',
 
         'CDN-Cache-Control': 'public, max-age=1800',
