@@ -20,7 +20,7 @@
     "@nextui-org/theme": "^2.4.3",
     "figlet": "^1.8.0",
     "framer-motion": "^11.14.4",
-    "next": "15.0.4",
+    "next": "15.0.7",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
