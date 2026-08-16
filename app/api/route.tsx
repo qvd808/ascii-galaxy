@@ -34,13 +34,14 @@ export async function GET(req: NextRequest) {
   const token = searchParams.get('token') === 'true';
   const debug = searchParams.get('debug') === 'true';
 
-  const timestamp = token ? new Date().toISOString() : '';
-
-  // Read request metadata.
+  // Request information.
   const cookie = req.headers.get('cookie') || 'NO_COOKIE';
   const userAgent = req.headers.get('user-agent') || 'NO_USER_AGENT';
   const referer = req.headers.get('referer') || 'NO_REFERER';
   const accept = req.headers.get('accept') || 'NO_ACCEPT';
+
+  // Timestamp generated only when token mode is enabled.
+  const timestamp = token ? new Date().toISOString() : '';
 
   const configs = [
     { offset: '0%', color: '#000033' },
@@ -202,10 +203,14 @@ export async function GET(req: NextRequest) {
         'Content-Type': 'image/svg+xml',
         'Content-Disposition': 'inline; filename=tech-star-background.svg',
 
-        // Deliberately cacheable.
+        // 30-minute cache.
         'Cache-Control': 'public, max-age=1800, s-maxage=1800',
 
         'CDN-Cache-Control': 'public, max-age=1800',
+
+        // IMPORTANT:
+        // Vercel uses this request header as part of the CDN cache key.
+        Vary: 'Cookie',
       },
     });
   } catch (error) {
